@@ -1,6 +1,7 @@
 import logging
 import threading
 from enum import Enum
+from cryptography.hazmat.primitives import serialization
 
 # Imports des couches inférieures
 from network.network_layer import NetworkManager
@@ -36,8 +37,29 @@ class SecureMessenger:
     def start_server(self, port):
         """Démarre en mode serveur (attente)."""
         self._set_status("En attente de connexion...", False)
+        # Générer les clés AVANT d'accepter la connexion pour être prêt
+        self._set_status("Génération des clés ECDH...", False)
+        try:
+            self.crypto.generate_ephemeral_keys()
+        except Exception as e:
+            logging.error(f"Erreur génération clés: {e}")
+            self._set_status("Erreur cryptographique", False)
+            return
+        
+        # Maintenant accepter la connexion
         if self.net.start_server(port):
-            self._start_handshake()
+            # Connexion établie, envoyer notre clé publique
+            try:
+                my_pub_pem = self.crypto.public_key.public_bytes(
+                    encoding=serialization.Encoding.PEM,
+                    format=serialization.PublicFormat.SubjectPublicKeyInfo
+                )
+                self.state = ProtocolState.HANDSHAKING
+                self.net.send_bytes(self.TYPE_HANDSHAKE + my_pub_pem)
+                self._set_status("Clé publique envoyée. Attente du pair...", False)
+            except Exception as e:
+                logging.error(f"Erreur envoi clé: {e}")
+                self.close()
         else:
             self._set_status("Erreur démarrage serveur", False)
 
