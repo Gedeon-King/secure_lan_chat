@@ -165,10 +165,16 @@ async function disconnect() {
 
     if (eventSource) {
         eventSource.close();
+        eventSource = null;
     }
 
-    // Reset UI
-    document.getElementById('connectionPanel').style.display = 'block';
+    // Reset UI - Ensure connection panel is visible
+    const connectionPanel = document.getElementById('connectionPanel');
+    if (connectionPanel) {
+        connectionPanel.style.display = 'block';
+        connectionPanel.classList.remove('hidden');
+    }
+
     document.getElementById('securityPanel').classList.add('hidden');
     document.getElementById('chatContainer').classList.add('hidden');
     document.getElementById('disconnectArea').classList.add('hidden');
