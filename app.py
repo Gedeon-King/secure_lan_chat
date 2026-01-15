@@ -7,6 +7,7 @@ import sys
 import os
 import threading
 import time
+import json
 from flask import Flask, render_template, request, jsonify, Response
 import logging
 import queue
@@ -70,7 +71,8 @@ def index():
 @app.route('/api/start_server', methods=['POST'])
 def start_server():
     """Démarre en mode serveur."""
-    port = int(request.json.get('port', 9999))
+    data = request.get_json() or {}
+    port = int(data.get('port', 9999))
     
     with state.lock:
         if state.messenger:
@@ -90,8 +92,9 @@ def start_server():
 @app.route('/api/connect', methods=['POST'])
 def connect():
     """Connecte à un pair."""
-    ip = request.json.get('ip')
-    port = int(request.json.get('port', 9999))
+    data = request.get_json() or {}
+    ip = data.get('ip')
+    port = int(data.get('port', 9999))
     
     with state.lock:
         if state.messenger:
@@ -110,7 +113,8 @@ def connect():
 @app.route('/api/send_message', methods=['POST'])
 def send_message():
     """Envoie un message."""
-    text = request.json.get('text', '').strip()
+    data = request.get_json() or {}
+    text = data.get('text', '').strip()
     
     if not text:
         return jsonify({"success": False, "error": "Message vide"})
@@ -161,7 +165,7 @@ def stream():
             try:
                 # Timeout pour éviter le blocage
                 msg = message_queue.get(timeout=30)
-                yield f"data: {jsonify(msg).get_data(as_text=True)}\n\n"
+                yield f"data: {json.dumps(msg)}\n\n"
             except queue.Empty:
                 # Keepalive
                 yield ": keepalive\n\n"
