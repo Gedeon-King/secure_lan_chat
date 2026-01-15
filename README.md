@@ -195,6 +195,8 @@ Ce projet a été développé dans le cadre d'un cursus de **Cybersécurité** a
 
 ## 📚 Documentation
 
+- **[Guide Explicatif Illustré](docs/GUIDE_EXPLICATIF.md)** : Diagrammes et explications pédagogiques
+- **[Guide de Démonstration](docs/DEMO_GUIDE.md)** : Scénario pour présentation académique
 - **[Manuel Utilisateur](docs/USER_MANUAL.md)** : Guide complet d'installation et d'utilisation
 - **[Analyse de Sécurité](docs/SECURITY_ANALYSIS.md)** : Modèle de menace, cryptographie, justifications
 - **[Plan d'Implémentation](../brain/.../implementation_plan.md)** : Architecture détaillée
